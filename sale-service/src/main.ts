@@ -42,8 +42,8 @@ app.use(
   })
 )
 
-httpServer.listen({ port: 4000 }, () => {
-  console.log(`Server listening on port 4000`)
+httpServer.listen({ port: 4001 }, () => {
+  console.log(`Server listening on port 4001`)
 })
 // you can also do this
 // app.listen(4000)
