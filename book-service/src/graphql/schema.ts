@@ -11,50 +11,11 @@ import { addBook } from './resolvers/books/addBook.ts'
 import { addAuthor } from './resolvers/author/addAuthor.ts'
 import type { Author, Book } from '../generated/prisma/index.js'
 import type { GraphQLContext } from '../main.ts'
+import { gql } from 'graphql-tag'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
-export const schema = `#graphql
-scalar DateTime
-scalar Void
-
-interface BookAndAuthor {
-  book: Book!
-  author: Author!
-}
-
-type Book {
-    id: Int!
-    title: String!
-    authors: [Author!]!
-    pages: Int!
-}
-
-type Author {
-    id: Int!
-    name: String!
-    birthDate: DateTime
-    books: [Book]!
-}
-
-type Query {
-    authors: [Author]
-    books: [Book]
-    book(id: Int!): Book
-    author(id: Int!): Author
-}
-
-type Mutation {
-  addBook(title: String!, authors: [Int!]!, pages: Int!): Book
-  updateBook(id: Int!, title: String, authors: [Int!], pages: Int): Book
-  removeBook(id: Int!): Void
-  addAuthor(name: String!, birthDate: DateTime): Author
-  updateAuthor(id: Int!, name: String, books: [Int!], birthDate: DateTime): Author
-  removeAuthor(id: Int!): Void
-}
-
-schema {
-    query: Query
-}
-`
+export const schema = gql(readFileSync(resolve(import.meta.dirname, './schema.graphql'), { encoding: 'utf8' }))
 
 export const resolvers = {
   DateTime: new GraphQLScalarType({

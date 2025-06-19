@@ -1,0 +1,51 @@
+scalar DateTime
+scalar Void
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+type Sale {
+  id: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  customerId: Int!
+  status: PaymentStatus!
+  products: [SaleProduct!]!
+}
+
+type SaleProduct {
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  productId: Int!
+  productType: String!
+  quantity: Int!
+  priceCent: Int!
+}
+
+input SaleProductInput {
+  productId: Int!
+  productType: String = "BOOK"
+  quantity: Int = 1
+  priceCent: Int!
+}
+
+type Query {
+  sales: [Sale]!
+  sale(id: Int!): Sale
+}
+
+type Mutation {
+  newSale(customerId: Int!, products: [SaleProductInput!]!): Sale!
+  completeSale(id: Int!): Sale!
+  cancelSale(id: Int!): Void!
+  addProductToSale(id: Int!, products: [SaleProductInput!]!): Sale!
+  removeProductFromSale(id: Int!, productIds: [Int]!): Sale!
+}
+
+schema {
+  mutation: Mutation
+  query: Query
+}

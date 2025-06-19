@@ -1,0 +1,46 @@
+scalar DateTime
+scalar Void
+
+interface BookAndAuthor {
+  book: Book!
+  author: Author!
+}
+
+type Book {
+  id: Int!
+  title: String!
+  authors: [Author!]!
+  pages: Int!
+}
+
+type Author {
+  id: Int!
+  name: String!
+  birthDate: DateTime
+  books: [Book]!
+}
+
+type Query {
+  authors: [Author]
+  books: [Book]
+  book(id: Int!): Book
+  author(id: Int!): Author
+}
+
+type Mutation {
+  addBook(title: String!, authors: [Int!]!, pages: Int!): Book
+  updateBook(id: Int!, title: String, authors: [Int!], pages: Int): Book
+  removeBook(id: Int!): Void
+  addAuthor(name: String!, birthDate: DateTime): Author
+  updateAuthor(
+    id: Int!
+    name: String
+    books: [Int!]
+    birthDate: DateTime
+  ): Author
+  removeAuthor(id: Int!): Void
+}
+
+schema {
+  query: Query
+}

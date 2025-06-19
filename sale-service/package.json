@@ -31,6 +31,7 @@
     "@as-integrations/express5": "^1.1.0",
     "@prisma/client": "^6.9.0",
     "express": "^5.1.0",
-    "graphql": "^16.11.0"
+    "graphql": "^16.11.0",
+    "graphql-tag": "^2.12.6"
   }
 }
