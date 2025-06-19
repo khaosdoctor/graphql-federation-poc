@@ -1,5 +1,5 @@
 import type { GraphQLContext } from "../../../main.ts"
-import type { NonEmptyArray, SaleProductInput } from "../../schema.ts"
+import type { NonEmptyArray, SaleProductInput } from "../../definitions.ts"
 
 export async function addProductToSale(_parent: undefined, args: { id: number, products: NonEmptyArray<SaleProductInput> }, ctx: GraphQLContext) {
   return ctx.db.$transaction(async (tx) => {

@@ -1,5 +1,5 @@
 import type { GraphQLContext } from "../../../main.ts"
-import type { NonEmptyArray } from "../../schema.ts"
+import type { NonEmptyArray } from "../../definitions.ts"
 
 export async function removeProductFromSale(_parent: undefined, args: { id: number, productIds: NonEmptyArray<number> }, ctx: GraphQLContext) {
   await ctx.db.saleProducts.deleteMany({

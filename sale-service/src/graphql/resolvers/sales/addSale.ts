@@ -1,6 +1,6 @@
 import { PaymentStatus } from '../../../generated/prisma/index.js'
 import type { GraphQLContext } from '../../../main.ts'
-import type { NonEmptyArray, SaleProductInput } from '../../schema.ts'
+import type { NonEmptyArray, SaleProductInput } from '../../definitions.ts'
 
 export async function addSale(
   _parent: undefined,

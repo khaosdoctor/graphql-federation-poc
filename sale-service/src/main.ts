@@ -3,7 +3,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { expressMiddleware } from '@as-integrations/express5'
 import Express from 'express'
 import http from 'node:http'
-import { schema, resolvers } from './graphql/schema.ts'
+import { schema, resolvers } from './graphql/definitions.ts'
 import { PrismaClient } from './generated/prisma/index.js'
 
 export interface GraphQLContext {
