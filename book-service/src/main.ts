@@ -5,6 +5,7 @@ import Express from 'express'
 import http from 'node:http'
 import { schema, resolvers } from './graphql/definitions.ts'
 import { PrismaClient } from './generated/prisma/index.js'
+import { buildSubgraphSchema } from '@apollo/subgraph'
 
 export interface GraphQLContext {
   db: PrismaClient
@@ -21,8 +22,10 @@ const app = Express()
 const httpServer = http.createServer(app)
 
 const graphqlServer = new ApolloServer<GraphQLContext>({
-  typeDefs: schema,
-  resolvers,
+  schema: buildSubgraphSchema([{
+    typeDefs: schema,
+    resolvers,
+  }]),
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 })
 
