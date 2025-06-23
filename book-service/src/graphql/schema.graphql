@@ -1,49 +1,75 @@
 extend schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.9"
-    import: ["@key", "@external"]
+    import: ["@key", "@external", "@shareable"]
   )
 
+"Represents a scalar type for DateTime, used for timestamps. Converted to ISO 8601 format when displaying."
 scalar DateTime
+"Represents a scalar type for Void, used for operations that do not return a value."
 scalar Void
 
-interface BookAndAuthor {
-  book: Book!
-  author: Author!
-}
-
-type Book {
+"Defines a book with its details and relationships to authors."
+type Book @key(fields: "id") {
+  "Book ID, scalar sequential field"
   id: Int!
+  "Book title"
   title: String!
+  "Array of authors associated with the book"
   authors: [Author!]!
+  "Number of pages in the book"
   pages: Int!
 }
 
-type Author {
+"""
+Represents a sale transaction, including customer information and products sold.
+This is in the sales service
+"""
+type Sale @key(fields: "id", resolvable: false) {
+  "Sale ID, scalar sequential field"
   id: Int!
+}
+
+"Defines an author with their details and relationships to books."
+type Author {
+  "Author ID, scalar sequential field"
+  id: Int!
+  "Author's name"
   name: String!
+  "Birth date of the author"
   birthDate: DateTime
+  "List of books written by the author"
   books: [Book]!
 }
 
-type Query {
+extend type Query {
+  "Fetches all authors"
   authors: [Author]
+  "Fetches all books"
   books: [Book]
+  "Fetches a specific book by ID or fail"
   book(id: Int!): Book
+  "Fetches a specific author by ID or fail"
   author(id: Int!): Author
 }
 
-type Mutation {
+extend type Mutation {
+  "New book creation with title, authors, and pages"
   addBook(title: String!, authors: [Int!]!, pages: Int!): Book
+  "Update an existing book's details by ID"
   updateBook(id: Int!, title: String, authors: [Int!], pages: Int): Book
+  "Remove a book by ID"
   removeBook(id: Int!): Void
+  "Add a new author with name and optional birth date, this needs to come before adding a book"
   addAuthor(name: String!, birthDate: DateTime): Author
+  "Update an existing author's details by ID"
   updateAuthor(
     id: Int!
     name: String
     books: [Int!]
     birthDate: DateTime
   ): Author
+  "Remove an author by ID, this will not fail if the author has books, but the books will not have this author anymore"
   removeAuthor(id: Int!): Void
 }
 

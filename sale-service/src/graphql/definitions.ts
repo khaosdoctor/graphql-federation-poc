@@ -54,8 +54,21 @@ export const resolvers = {
     },
   }),
   Sale: {
-    products: (sale: Sale, _args: undefined, ctx: GraphQLContext) => {
+    items: (sale: Sale, _args: undefined, ctx: GraphQLContext) => {
       return ctx.db.saleProducts.findMany({ where: { saleId: sale.id } })
+    },
+    __resolveReference: (sale: { id: number }, ctx: GraphQLContext) => {
+      return ctx.db.sale.findMany({ where: { id: sale.id } })
+    }
+  },
+  SaleProduct: {
+    product: (saleProduct: SaleProducts) => {
+      return { id: saleProduct.productId }
+    }
+  },
+  Book: {
+    sales: (book: { id: number }, _args: undefined, ctx: GraphQLContext) => {
+      return ctx.db.sale.findMany({ where: { products: { some: { productId: book.id } } } })
     }
   },
   Query: {

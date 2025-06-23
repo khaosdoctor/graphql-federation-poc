@@ -55,6 +55,9 @@ export const resolvers = {
     },
   }),
   Book: {
+    __resolveReference: (resolvedBook: { id: number }, ctx: GraphQLContext) => {
+      return ctx.db.book.findUnique({ where: { id: resolvedBook.id } })
+    },
     authors: async (parent: Book, _args: undefined, ctx: GraphQLContext) => {
       const result = await ctx.db.authorsBooks.findMany({
         where: {
@@ -65,6 +68,9 @@ export const resolvers = {
 
       return result.map((item) => item.author)
     },
+    sales: async (parent: Book) => {
+      return { id: parent.id }
+    }
   },
   Author: {
     // Field resolvers for the books field in Author type so the schema knows how to resolve it

@@ -1,36 +1,60 @@
 extend schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.9"
-    import: ["@key", "@external"]
+    import: ["@key", "@external", "@shareable", "@provides"]
   )
 
+"Represents a scalar type for DateTime, used for timestamps. Converted to ISO 8601 format when displaying."
 scalar DateTime
+"Represents a scalar type for Void, used for operations that do not return a value."
 scalar Void
 
+"""
+Repesents the status of a payment for a sale.
+- PENDING: The sale is created but not completed. This is the default status.
+- COMPLETED: The sale has been completed successfully.
+- CANCELLED: The sale has been cancelled by the cancelSale mutation
+"""
 enum PaymentStatus {
   PENDING
   COMPLETED
   CANCELLED
 }
 
-type Sale {
+"Represents a sale transaction, including customer information and products sold."
+type Sale @key(fields: "id") {
   id: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
+  "Customer ID associated with the sale, not in this example"
   customerId: Int!
+  "Final sale status, can be PENDING, COMPLETED, or CANCELLED"
   status: PaymentStatus!
-  products: [SaleProduct!]!
+  "Products in this sale"
+  items: [SaleProduct!]!
 }
 
+"""
+A sale product represents a product sold in a sale.
+This is NOT directly a BOOK, it is a product with more than book fields
+"""
 type SaleProduct {
   createdAt: DateTime!
   updatedAt: DateTime!
-  productId: Int!
+  "This is a book ID"
+  product: Book!
+  "Could be anything but here it's all BOOK"
   productType: String!
   quantity: Int!
   priceCent: Int!
 }
 
+type Book @key(fields: "id") {
+  id: Int!
+  sales: [Sale]
+}
+
+"Input object for adding a new product to a sale."
 input SaleProductInput {
   productId: Int!
   productType: String = "BOOK"
@@ -38,12 +62,12 @@ input SaleProductInput {
   priceCent: Int!
 }
 
-type Query {
+extend type Query {
   sales: [Sale]!
   sale(id: Int!): Sale
 }
 
-type Mutation {
+extend type Mutation {
   newSale(customerId: Int!, products: [SaleProductInput!]!): Sale!
   completeSale(id: Int!): Sale!
   cancelSale(id: Int!): Void!
