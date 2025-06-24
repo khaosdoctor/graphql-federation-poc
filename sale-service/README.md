@@ -1,20 +1,27 @@
-# GraphQL Bookstore with Prisma example
+# Sale Service
 
-> This is a small **experimental** example of a GraphQL Bookstore using Prisma.
+A GraphQL subgraph service for managing sales transactions in a federated GraphQL architecture.
 
-The intent of this application is to demonstrate how to use Prisma with GraphQL
-in a simple bookstore application. It's **not** meant to be a production-ready
-application.
+## Overview
 
-_This application will not be maintained or updated in the future._
+The Sale Service handles all sales-related operations, including creating sales, managing sale products, and tracking payment status. It extends the `Book` entity from the book-service to create relationships between books and sales.
+
+## Features
+
+- **Sales Management**: Create, read, update, and complete sales
+- **Product Management**: Add and remove products from sales
+- **Payment Status Tracking**: PENDING, COMPLETED, CANCELLED statuses
+- **GraphQL Federation**: Implements Apollo Federation v2.9 specifications
+- **Database**: Uses Prisma ORM with PostgreSQL
+- **Type Safety**: Built with TypeScript
 
 ## Tech Stack
 
 - **Node.js** with TypeScript
-- **GraphQL** with Apollo Server
+- **GraphQL** with Apollo Server v4 + Apollo Subgraph
 - **Prisma** ORM with PostgreSQL
-- **Express** for HTTP server
-- **Docker Compose** for database setup
+- **Express** v5 for HTTP server
+- **Apollo Federation** v2.9
 
 ## Prerequisites
 
@@ -24,39 +31,26 @@ _This application will not be maintained or updated in the future._
 
 ## Setup
 
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/khaosdoctor/graphql-bookstore-prisma-demo.git
-   cd graphql-bookstore-prisma-demo
-   ```
-
-2. **Install dependencies**
+1. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-3. **Start the database**
-
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Set up environment variables**
+2. **Set up environment variables**
    Create a `.env` file in the root directory:
 
    ```env
    DATABASE_URL="postgresql://root:root@localhost:5432/bookstore"
    ```
 
-5. **Run database migrations**
+3. **Run database migrations**
 
    ```bash
    npx prisma migrate dev
    ```
 
-6. **Generate Prisma client**
+4. **Generate Prisma client**
 
    ```bash
    npx prisma generate
@@ -64,26 +58,48 @@ _This application will not be maintained or updated in the future._
 
 ## Running
 
-1. **Start the development server**
+Start the development server:
 
-   ```bash
-   npm start
-   ```
+```bash
+npm start
+```
 
-2. **Access GraphQL Playground**
-   Open your browser and navigate to `http://localhost:4000/graphql`
+The service will be available at `http://localhost:4001/graphql`
+
+## API Schema
+
+### Types
+
+- **Sale**: Represents a sales transaction with customer, status, and products
+- **SaleProduct**: Represents a product (book) within a sale with quantity and price
+- **PaymentStatus**: Enum for sale status (PENDING, COMPLETED, CANCELLED)
+- **Book**: Extended from book-service to show sales relationships
+
+### Queries
+
+- `sales`: Fetch all sales
+- `sale(id: Int!)`: Fetch a specific sale by ID
+
+### Mutations
+
+- `newSale(customerId: Int!, products: [SaleProductInput!]!)`: Create a new sale
+- `completeSale(id: Int!)`: Mark a sale as completed
+- `cancelSale(id: Int!)`: Cancel a sale
+- `addProductToSale(id: Int!, products: [SaleProductInput!]!)`: Add products to an existing sale
+- `removeProductFromSale(id: Int!, productIds: [Int]!)`: Remove products from a sale
 
 ## Project Structure
 
 ```
 src/
-├── generated/           # Generated Prisma client (ignored until generate is run)
+├── generated/           # Generated Prisma client
 ├── graphql/
+│   ├── definitions.ts   # GraphQL schema definitions
+│   ├── schema.graphql   # GraphQL schema file
 │   ├── errors/         # Custom GraphQL errors
-│   ├── resolvers/      # GraphQL resolvers
-│   │   ├── author/     # Author-related resolvers
-│   │   └── books/      # Book-related resolvers
-│   └── schema.ts       # GraphQL schema definition
+│   └── resolvers/      # GraphQL resolvers
+│       ├── sales/      # Sale-related resolvers
+│       └── saleProducts/ # Sale product-related resolvers
 └── main.ts             # Application entry point
 
 prisma/
@@ -91,47 +107,77 @@ prisma/
 └── schema.prisma       # Prisma schema
 ```
 
+## Database Schema
+
+The service uses Prisma with the following main entities:
+- Sales (id, customerId, status, createdAt, updatedAt)
+- SaleProducts (productId, productType, quantity, priceCent, createdAt, updatedAt)
+- Sale-Product relationships (one-to-many)
+
+## Federation Integration
+
+This service:
+- **Extends Book type** from book-service to add sales relationships
+- **Works with Federation Router** for query composition
+- **References Book entities** from book-service through federation
+
+The service provides the `Sale` entity and extends the `Book` entity with sales data.
+
 ## Example Queries
 
-### Get all books with their authors
+### Get all sales with their products
 
 ```graphql
 query {
-  books {
+  sales {
     id
-    title
-    pages
-    authors {
-      id
-      name
-      birthDate
+    customerId
+    status
+    createdAt
+    items {
+      product {
+        id
+        title
+      }
+      quantity
+      priceCent
     }
   }
 }
 ```
 
-### Add a new book
+### Create a new sale
 
 ```graphql
 mutation {
-  addBook(title: "The Great Gatsby", authors: [1], pages: 180) {
+  newSale(
+    customerId: 123
+    products: [
+      {
+        productId: 1
+        productType: "BOOK"
+        quantity: 2
+        priceCent: 1999
+      }
+    ]
+  ) {
     id
-    title
-    pages
-    authors {
-      name
+    customerId
+    status
+    items {
+      quantity
+      priceCent
     }
   }
 }
 ```
 
-### Add a new author
+### Complete a sale
 
 ```graphql
 mutation {
-  addAuthor(name: "F. Scott Fitzgerald", birthDate: "1896-09-24") {
+  completeSale(id: 1) {
     id
-    name
-    birthDate
+    status
   }
 }
