@@ -2,6 +2,8 @@
 
 A proof-of-concept implementation of GraphQL Federation using Apollo Federation v2.9 with multiple microservices.
 
+> There are two tags in this service, one is [standalone](https://github.com/hemnet/graphql-federation-poc/releases/tag/standalone) which is both services acting as different entities and the [federated](https://github.com/hemnet/graphql-federation-poc/releases/tag/federated) which provides one single graph for both
+
 ## Overview
 
 This project demonstrates a complete GraphQL Federation setup with multiple specialized services that work together to provide a unified GraphQL API. The architecture follows a microservices pattern where each service owns specific business domains and data models.
